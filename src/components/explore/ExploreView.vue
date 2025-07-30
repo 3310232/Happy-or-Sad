@@ -122,58 +122,13 @@ function selectVideo(index) {
   font-weight: 900;
   color: #222;
   margin: 24px auto 12px auto;
-  max-width: 960px;
+  max-width: 1280px;
   padding: 0 16px;
-}
-
-/* 登录卡片区域 */
-.page-header {
-  display: flex;
-  justify-content: flex-end;
-  align-items: center;
-  max-width: 960px;
-  margin: 0 auto 24px auto;
-  padding: 12px 24px;
-  background: #fff;
-  border-radius: 12px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
-}
-
-.user-section {
-  display: flex;
-  align-items: center;
-}
-
-.login-btn {
-  background-color: #4a90e2;
-  color: white;
-  padding: 6px 16px;
-  border: none;
-  border-radius: 20px;
-  cursor: pointer;
-  font-weight: bold;
-}
-
-.user-info {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-
-.avatar {
-  width: 32px;
-  height: 32px;
-  border-radius: 50%;
-}
-
-.username {
-  font-weight: 500;
-  color: #333;
 }
 
 /* 视频播放器和缩略图 */
 .video-wrapper {
-  max-width: 960px;
+  max-width: 1280px;
   margin: 0 auto 24px auto;
   padding: 16px;
   background: #fff;
@@ -184,46 +139,41 @@ function selectVideo(index) {
 .video-preview-section {
   display: flex;
   gap: 20px;
-  justify-content: center;
-  align-items: center;
-  height: 320px;
+  flex-wrap: wrap;
+  justify-content: space-between;
 }
 
 .main-video {
-  flex: 2;
+  flex: 2 1 640px;
   background: #000;
   border-radius: 12px;
-  box-shadow: 0 6px 15px rgb(0 0 0 / 0.15);
   overflow: hidden;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  height: 100%;
+  box-shadow: 0 6px 15px rgb(0 0 0 / 0.15);
+  aspect-ratio: 16 / 9;
 }
 
 .main-video video {
   width: 100%;
   height: 100%;
   object-fit: contain;
-  border-radius: 12px;
   background: #000;
 }
 
 .thumbnail-list {
-  flex: 1;
-  max-height: 320px;
+  flex: 1 1 240px;
+  max-height: 100%;
   overflow-y: auto;
   background: #f9f9f9;
   border-radius: 12px;
-  box-shadow: 0 4px 12px rgb(0 0 0 / 0.1);
   padding: 12px;
   border: 1px solid #ddd;
+  box-shadow: 0 4px 12px rgb(0 0 0 / 0.1);
 }
 
 .thumbnail-item {
   display: flex;
   flex-direction: column;
-  margin-bottom: 14px;
+  margin-bottom: 12px;
   cursor: pointer;
   border-radius: 8px;
   padding: 6px;
@@ -255,7 +205,7 @@ function selectVideo(index) {
 
 /* tabs区域 */
 .tabs-section {
-  max-width: 960px;
+  max-width: 1280px;
   margin: 0 auto;
   padding: 0 16px;
   border-top: 1px solid #ddd;
@@ -264,7 +214,7 @@ function selectVideo(index) {
 
 .tabs {
   display: flex;
-  gap: 16px;
+  gap: 12px;
   margin-bottom: 12px;
   flex-wrap: wrap;
 }
@@ -291,8 +241,8 @@ function selectVideo(index) {
 
 .tab-content {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
-  gap: 24px;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 16px;
 }
 
 .tab-item {
@@ -302,11 +252,23 @@ function selectVideo(index) {
   display: flex;
   justify-content: center;
   align-items: center;
-  height: 240px;
+  aspect-ratio: 1 / 1;
   font-weight: 600;
   color: #444;
   user-select: none;
   text-align: center;
   padding: 12px;
 }
+
+/* 响应式优化 */
+@media screen and (max-width: 768px) {
+  .video-preview-section {
+    flex-direction: column;
+  }
+  .main-video, .thumbnail-list {
+    width: 100%;
+    flex: none;
+  }
+}
+
 </style>

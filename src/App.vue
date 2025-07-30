@@ -45,7 +45,7 @@ function onMenuClick(item) {
         </ul>
       </nav>
     </aside>
-    <main class="chat-container">
+    <main class="container">
       <router-view />
     </main>
   </div>
@@ -127,7 +127,7 @@ body,
 .sidebar.collapsed nav {
   display: none;
 }
-.sidebar.collapsed ~ .chat-container {
+.sidebar.collapsed ~ .container {
   margin-left: 50px;
 }
 
@@ -148,7 +148,7 @@ nav ul li:hover {
   background-color: #dbddc5;
 }
 
-.chat-container {
+.container {
   margin-left: 240px; /* ← 为固定 sidebar 预留空间 */
   flex: 1;
   display: flex;
