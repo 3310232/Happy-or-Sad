@@ -67,8 +67,11 @@ body,
 }
 
 .sidebar {
-  width: 240px;
+  position: fixed; /* ← 固定侧边栏位置 */
+  top: 0;
+  left: 0;
   height: 100vh;
+  width: 240px;
   background-color: #f1efec;
   color: #241919;
   display: flex;
@@ -77,6 +80,7 @@ body,
   box-sizing: border-box;
   transition: width 0.3s ease;
   overflow: hidden;
+  z-index: 1000; /* 保证在主内容上方 */
 }
 
 /* 折叠后侧边栏变窄 */
@@ -123,6 +127,9 @@ body,
 .sidebar.collapsed nav {
   display: none;
 }
+.sidebar.collapsed ~ .chat-container {
+  margin-left: 50px;
+}
 
 nav ul {
   list-style: none;
@@ -142,10 +149,12 @@ nav ul li:hover {
 }
 
 .chat-container {
+  margin-left: 240px; /* ← 为固定 sidebar 预留空间 */
   flex: 1;
   display: flex;
   flex-direction: column;
   max-width: 100%;
+  transition: margin-left 0.3s ease;
 }
 
 /* 响应式布局：小屏时隐藏侧边栏 */
