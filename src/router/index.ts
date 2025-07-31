@@ -10,7 +10,7 @@ const router = createRouter({
       name: 'about',
       component: () => import('../views/AboutView.vue')
     },
-    // 你可以新增这些页面路由：
+     { path: '/edit', name: 'edit', component: () => import('../components/edit/EditView.vue') },
     { path: '/chat', name: 'chat', component: () => import('../components/chat/ChatView.vue') },
     { path: '/settings', name: 'settings', component: () => import('../components/settings/SettingsView.vue') }
   ],
