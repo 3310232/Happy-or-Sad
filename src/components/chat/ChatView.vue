@@ -31,7 +31,7 @@ onMounted(() => {
     initSocket()
 })
 
-const socket = new WebSocket('http://127.0.0.1:8080/test')
+const socket = new WebSocket('ws://localhost:8080/chats/ws')
 const messageHeader = (e) => {
 
     const resData = JSON.parse(e.data)
