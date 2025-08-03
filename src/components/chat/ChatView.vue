@@ -65,7 +65,7 @@ const sendMessage = () => {
 const messageHeader = (e: MessageEvent) => { 
   const resData = JSON.parse(e.data) as { data?: string; isEnd: boolean }
 
-  let cleanData = resData.data
+  let cleanData = ''
   if (resData.data) {
     // 先去除 <think> 标签
     cleanData = resData.data.replace(/<think>|<\/think>/g, '')
