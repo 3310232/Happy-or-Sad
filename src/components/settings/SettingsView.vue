@@ -1,33 +1,38 @@
-<script setup>
+<script setup lang="ts">
 import { ref, onMounted } from "vue";
 
-const presetColors = ["#556449", "#819670", "#c9ccb4", "#dbddc5", "#241919"];
-const selectedColor = ref(presetColors[0]);
-const customColor = ref("");
+// 预设颜色列表
+const presetColors: string[] = ["#556449", "#819670", "#c9ccb4", "#dbddc5", "#241919"];
+const selectedColor = ref<string>(presetColors[0]);
+const customColor = ref<string>("");
 
-const currentPwd = ref("");
-const newPwd = ref("");
-const confirmPwd = ref("");
+const currentPwd = ref<string>("");
+const newPwd = ref<string>("");
+const confirmPwd = ref<string>("");
 
-function applyTheme(color) {
+/**
+ * 应用主题颜色
+ * @param color - 颜色代码（如 #ff6600）
+ */
+function applyTheme(color: string): void {
   selectedColor.value = color;
   document.documentElement.style.setProperty("--primary-color", color);
   const hoverColor = generateHoverColor(color);
-  document.documentElement.style.setProperty(
-    "--primary-color-hover",
-    hoverColor
-  );
+  document.documentElement.style.setProperty("--primary-color-hover", hoverColor);
   localStorage.setItem("theme-color", color);
 }
 
-function generateHoverColor(hex) {
+/**
+ * 生成悬浮状态颜色（稍微加亮）
+ * @param hex - 颜色的十六进制表示（如 #556449）
+ * @returns 亮色（rgb格式）或原始颜色
+ */
+function generateHoverColor(hex: string): string {
   try {
     let c = hex.substring(1);
-    if (c.length === 3)
-      c = c
-        .split("")
-        .map((s) => s + s)
-        .join("");
+    if (c.length === 3) {
+      c = c.split("").map((s) => s + s).join("");
+    }
     const num = parseInt(c, 16);
     const r = Math.min(255, (num >> 16) + 20);
     const g = Math.min(255, ((num >> 8) & 0x00ff) + 20);
@@ -38,10 +43,14 @@ function generateHoverColor(hex) {
   }
 }
 
-function saveSettings() {
+/**
+ * 保存设置（模拟保存）
+ */
+function saveSettings(): void {
   alert("设置已保存");
 }
 
+// 加载本地存储的主题颜色
 onMounted(() => {
   const saved = localStorage.getItem("theme-color");
   if (saved) applyTheme(saved);

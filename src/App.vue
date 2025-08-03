@@ -1,4 +1,4 @@
-<script setup>
+<script setup lang="ts">
 import { ref } from "vue";
 import { useRouter, useRoute } from "vue-router";
 import AppHeader from "./views/AppHeader.vue";
@@ -18,7 +18,7 @@ if (savedColor) {
 const router = useRouter();
 const route = useRoute();
 
-function isActive(item) {
+function isActive(item:any) {
   return route.path === item.path;
 }
 
@@ -36,7 +36,7 @@ function toggleSidebar() {
   isCollapsed.value = !isCollapsed.value;
 }
 
-function onMenuClick(item) {
+function onMenuClick(item:any) {
   router.push(item.path);
 }
 </script>

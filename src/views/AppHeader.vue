@@ -1,11 +1,12 @@
-<script setup>
+<script setup lang="ts">
 import { ref } from "vue";
+import { login } from '../api/userApi';
 
 const showDialog = ref(false);
 const isLoginMode = ref(true);
 
-const username = ref("");
-const password = ref("");
+const username = ref("hs");
+const password = ref("123456");
 const confirmPwd = ref("");
 const errorMsg = ref("");
 
@@ -19,7 +20,6 @@ function resetForm() {
 function signIn() {
   isLoginMode.value = true;
   showDialog.value = true;
-  resetForm();
 }
 
 function toggleMode() {
@@ -32,7 +32,9 @@ function closeDialog() {
   resetForm();
 }
 
-function submit() {
+
+
+async function submit() {
   errorMsg.value = "";
 
   const usernameRegex = /^[\u4e00-\u9fa5a-zA-Z0-9]+$/;
@@ -51,9 +53,22 @@ function submit() {
     return;
   }
 
-  alert(isLoginMode.value ? "Login Submitted" : "Register Submitted");
-  closeDialog();
+  try {
+    const result = await login(username.value, password.value);
+    console.log("登录成功:", result);
+
+    // 假设后端返回了 token
+    localStorage.setItem('token', JSON.stringify(result?.token));
+
+    closeDialog();
+
+    // 登录成功后的跳转或状态处理
+  } catch (error:any) {
+    console.error("登录失败:", error);
+    errorMsg.value = error.message || "登录失败，请检查用户名和密码";
+  }
 }
+
 </script>
 
 <template>
@@ -196,4 +211,6 @@ function submit() {
   margin-top: 4px;
   text-align: left;
 }
+
+
 </style>

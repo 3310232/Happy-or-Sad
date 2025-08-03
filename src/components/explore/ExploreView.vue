@@ -61,13 +61,19 @@
   </div>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import { ref } from "vue";
 
-const tabs = ["文字", "视频", "图片", "声音"];
-const activeTab = ref(tabs[0]);
+const tabs: string[] = ["文字", "视频", "图片", "声音"];
+const activeTab = ref<string>(tabs[0]);
 
-const thumbnails = [
+interface Thumbnail {
+  title: string;
+  poster: string;
+  src: string;
+}
+
+const thumbnails = ref<Thumbnail[]>([
   {
     title: "视频1",
     poster: "https://via.placeholder.com/120x68?text=Thumb+1",
@@ -88,24 +94,36 @@ const thumbnails = [
     poster: "https://via.placeholder.com/120x68?text=Thumb+4",
     src: "https://www.w3schools.com/html/movie.mp4",
   },
-];
+]);
 
-const selectedIndex = ref(0);
-const mainVideoSrc = ref(thumbnails[0].src);
+const selectedIndex = ref<number>(0);
+const mainVideoSrc = ref<string>(thumbnails.value[0].src);
 
-// 模拟用户登录
-const user = ref(null);
-function login() {
+interface User {
+  name: string;
+  avatar: string;
+}
+
+// 模拟用户登录，初始为 null
+const user = ref<User | null>(null);
+
+function login(): void {
   user.value = {
     name: "用户昵称",
     avatar: "https://i.pravatar.cc/40?img=3",
   };
 }
-function selectVideo(index) {
+
+/**
+ * 选择视频
+ * @param index - 选中视频索引
+ */
+function selectVideo(index: number): void {
   selectedIndex.value = index;
-  mainVideoSrc.value = thumbnails[index].src;
+  mainVideoSrc.value = thumbnails.value[index].src;
 }
 </script>
+
 
 <style scoped>
 /* 页面整体背景和字体 */
