@@ -8,6 +8,7 @@
 
           <textarea
             v-model="newMessage"
+            @keyup.enter="sendMessage"
             placeholder="请在这里输入你的问题或任务..."
             rows="5"
             class="empty-input"
@@ -18,17 +19,23 @@
       </div>
 
       <div v-else>
-        <div v-for="(message, index) in messages" :key="index" :class="['message', message.sender]">
-          <div :class="['response-container', { cursor: message.isActive }]">
-            {{ message.text }}
-          </div>
-        </div>
+        <div v-for="(message, index) in messages" :key="index" :class="['message-wrapper', message.sender]">
+  <div :class="['message', message.sender]">
+    <div :class="['response-container', { cursor: message.isActive }]">
+      {{ message.text }}
+    </div>
+  </div>
+</div>
+
       </div>
     </div>
 
-    <!-- 有消息后底部输入栏 -->
     <div v-if="messages.length > 0" class="chat-input">
-      <input v-model="newMessage" @keyup.enter="sendMessage" placeholder="Type a message..." />
+      <input
+        v-model="newMessage"
+        @keyup.enter="sendMessage"
+        placeholder="Type a message..."
+      />
       <button @click="sendMessage">Send</button>
     </div>
   </div>
@@ -37,76 +44,52 @@
 <script setup lang="ts">
 import { ref, reactive, onMounted } from 'vue'
 
-// 定义消息类型
 interface Message {
   text: string
   sender: 'user' | 'bot'
   isActive?: boolean
 }
 
-// 响应式消息列表
 const messages = reactive<Message[]>([])
-
-// 输入框绑定值
 const newMessage = ref('')
-
-// WebSocket 实例
 let socket: WebSocket
 
-// 发送消息
 const sendMessage = () => {
   const userMsg = newMessage.value.trim()
   if (!userMsg) return
-
-  // 推送用户消息
   messages.push({ text: userMsg, sender: 'user' })
-
-  // 发送给 WebSocket 服务端
   socket?.send(userMsg)
-
-  // 清空输入框
   newMessage.value = ''
 }
 
-// WebSocket 消息处理函数
-const messageHeader = (e: MessageEvent) => {
-  const resData = JSON.parse(e.data) as {
-    data: string
-    isEnd: boolean
+const messageHeader = (e: MessageEvent) => { 
+  const resData = JSON.parse(e.data) as { data?: string; isEnd: boolean }
+
+  let cleanData = resData.data
+  if (resData.data) {
+    // 先去除 <think> 标签
+    cleanData = resData.data.replace(/<think>|<\/think>/g, '')
+    // 去掉开头空格（包括空格、制表符等所有空白字符）
+    cleanData = cleanData.replace(/^\s+/, '')
   }
 
   const idx = messages.findIndex((item) => item.isActive)
 
   if (!resData.isEnd) {
     if (idx === -1) {
-      // 首次响应
-      messages.push({
-        text: resData.data,
-        sender: 'bot',
-        isActive: true,
-      })
+      messages.push({ text: cleanData, sender: 'bot', isActive: true })
     } else {
-      messages[idx].text += resData.data
+      messages[idx].text += cleanData
     }
   } else {
-    if (idx !== -1) {
-      messages[idx].isActive = false
-    }
+    if (idx !== -1) messages[idx].isActive = false
   }
 }
 
-// WebSocket 生命周期钩子
-const openHeader = () => {
-  console.log('WebSocket open')
-}
-const errorHeader = () => {
-  console.log('WebSocket error')
-}
-const closeHeader = () => {
-  console.log('WebSocket close')
-}
+const openHeader = () => console.log('WebSocket open')
+const errorHeader = () => console.log('WebSocket error')
+const closeHeader = () => console.log('WebSocket close')
 
-// 初始化 WebSocket
 const initSocket = () => {
   socket = new WebSocket('ws://localhost:8080/chats/ws')
   socket.onmessage = messageHeader
@@ -115,21 +98,25 @@ const initSocket = () => {
   socket.onclose = closeHeader
 }
 
-// 初始化时连接 socket
 onMounted(() => {
   initSocket()
 })
 </script>
 
 <style scoped>
+html, body, #app {
+  height: 100%;
+  margin: 0;
+  padding: 0;
+}
+
 .chat-container {
   display: flex;
   flex-direction: column;
   align-items: center;
-  height: 90vh;
+  height: 100%;
   padding: 0 10px;
-  background-color: #e9e9e980;
-  backdrop-filter: blur(8px);
+  background-color: #ffffff;
 }
 
 .chat-messages {
@@ -141,10 +128,8 @@ onMounted(() => {
   display: flex;
   flex-direction: column;
   gap: 14px;
-  /* 新增滚动条样式更美观 */
-  scrollbar-width: thin;
-  scrollbar-color: rgba(0,0,0,0.2) transparent;
 }
+
 .chat-messages::-webkit-scrollbar {
   width: 8px;
 }
@@ -156,76 +141,83 @@ onMounted(() => {
   background: transparent;
 }
 
+.message-wrapper {
+  display: flex;
+  width: 100%;
+}
+
+.message-wrapper.user {
+  justify-content: flex-end;
+}
+
+.message-wrapper.bot {
+  justify-content: flex-start;
+}
+
 .message {
-  padding: 12px 18px;
-  border-radius: 20px;
+  display: inline-block;
+  padding: 10px 16px;
+  border-radius: 18px;
   max-width: 70%;
   word-wrap: break-word;
   white-space: pre-wrap;
   font-size: 15px;
-  line-height: 1.4;
-  box-shadow: 0 3px 8px rgb(0 0 0 / 0.07);
-  transition: background-color 0.2s ease;
+  line-height: 1.5;
 }
 
 .message.user {
-  background-color: #a0d995;
-  color: #1f2d1f;
-  align-self: flex-end;
-  border-bottom-right-radius: 4px;
+  background-color: #eff6ff;
+  color: #222;
+  border-top-right-radius: 4px;
 }
 
 .message.bot {
-  background-color: #fff;
+  background-color: #f5f5f5;
   color: #333;
-  align-self: flex-start;
-  border-bottom-left-radius: 4px;
+  border-top-left-radius: 4px;
 }
 
 .chat-input {
   display: flex;
   width: 100%;
   max-width: 900px;
-  padding: 20px;
+  padding: 16px 20px;
   box-sizing: border-box;
   background-color: #fff;
-  border-radius: 24px;
-  box-shadow: 0 2px 12px rgb(0 0 0 / 0.1);
+  border-top: 1px solid #eee;
 }
 
 .chat-input input {
   flex: 1;
-  padding: 14px 20px;
-  border: 1.8px solid #ccc;
-  border-radius: 24px;
-  font-size: 16px;
+  padding: 12px 18px;
+  border: 1.5px solid #ddd;
+  border-radius: 20px;
+  font-size: 15px;
   outline: none;
   transition: border-color 0.25s ease, box-shadow 0.25s ease;
-  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
 }
 
 .chat-input input:focus {
-  border-color: var(--primary-color, #3498db);
-  box-shadow: 0 0 8px var(--primary-color, #3498db);
+  border-color: var(--primary-color);
+  box-shadow: 0 0 6px var(--primary-color);
 }
 
 .chat-input button {
-  margin-left: 16px;
-  padding: 14px 28px;
-  background-color: var(--primary-color, #3498db);
-  color: white;
+  margin-left: 12px;
+  padding: 12px 24px;
+  background-color: var(--primary-color);
+  color: #fff;
   border: none;
-  border-radius: 24px;
-  font-size: 16px;
+  border-radius: 20px;
+  font-size: 15px;
   cursor: pointer;
   font-weight: 600;
-  box-shadow: 0 4px 14px rgb(52 152 219 / 0.4);
-  transition: background-color 0.3s ease, box-shadow 0.3s ease;
+  box-shadow: 0 2px 8px rgba(138, 180, 248, 0.3);
+  transition: filter 0.3s ease;
 }
 
 .chat-input button:hover {
-  background-color: var(--primary-color-hover, #2980b9);
-  box-shadow: 0 6px 20px rgb(41 128 185 / 0.6);
+  background-color: var(--primary-color-hover);
 }
 
 /* 空聊天状态样式 */
@@ -245,20 +237,20 @@ onMounted(() => {
   width: 900px;
   padding: 30px 40px;
   border-radius: 16px;
-  background-color: rgba(255 255 255 / 0.9);
+  background-color: #f9f9f9;
   color: #333;
   font-size: 18px;
-  box-shadow: 0 8px 24px rgb(0 0 0 / 0.1);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.06);
 }
 
 .empty-chat-box h2 {
-  font-size: 28px;
+  font-size: 26px;
   margin-bottom: 14px;
   font-weight: 700;
 }
 
 .intro {
-  margin-bottom: 28px;
+  margin-bottom: 24px;
   color: #555;
   line-height: 1.5;
 }
@@ -266,38 +258,36 @@ onMounted(() => {
 .empty-input {
   width: 100%;
   padding: 14px 18px;
-  font-size: 17px;
-  border: 1.8px solid #ccc;
-  border-radius: 16px;
+  font-size: 16px;
+  border: 1.5px solid #ddd;
+  border-radius: 14px;
   resize: none;
-  margin-bottom: 28px;
+  margin-bottom: 20px;
   box-sizing: border-box;
-  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
   transition: border-color 0.25s ease, box-shadow 0.25s ease;
 }
 
 .empty-input:focus {
-  border-color: var(--primary-color, #3498db);
-  box-shadow: 0 0 10px var(--primary-color, #3498db);
+  border-color: var(--primary-color);
+  box-shadow: 0 0 8px var(--primary-color);
   outline: none;
 }
 
 .send-btn {
-  padding: 14px 40px;
-  background-color: var(--primary-color, #3498db);
+  padding: 12px 32px;
+  background-color: var(--primary-color);
   color: white;
   border: none;
-  border-radius: 20px;
-  font-size: 17px;
+  border-radius: 18px;
+  font-size: 16px;
   font-weight: 600;
   cursor: pointer;
-  box-shadow: 0 5px 15px rgb(52 152 219 / 0.5);
-  transition: background-color 0.3s ease, box-shadow 0.3s ease;
+  box-shadow: 0 3px 10px rgba(138, 180, 248, 0.4);
+  transition: filter 0.3s ease;
 }
 
 .send-btn:hover {
-  background-color: var(--primary-color-hover, #2980b9);
-  box-shadow: 0 7px 22px rgb(41 128 185 / 0.7);
+  background-color: var(--primary-color-hover);
 }
 
 .response-container {
@@ -317,5 +307,4 @@ onMounted(() => {
 .response-container.cursor {
   animation: blink 0.75s step-end infinite;
 }
-
 </style>
